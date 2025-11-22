@@ -2,6 +2,29 @@ import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 
+export const getByIds = query({
+  args: { ids: v.array(v.id("documents")) },
+
+  handler: async (ctx, { ids }) => {
+    const documents = [];
+
+    for (const id of ids) {
+      const doc = await ctx.db.get(id);
+
+      if (doc) {
+        documents.push({
+          id: doc._id,
+          title: doc.title,
+        });
+      } else {
+        documents.push({ id, name: "Removed" });
+      }
+    }
+
+    return documents;
+  },
+});
+
 export const create = mutation({
   args: {
     title: v.optional(v.string()),
@@ -97,7 +120,9 @@ export const removeById = mutation({
       | undefined;
 
     const isOwner = document.ownerId == user.subject;
-    const isOrgMember = document.organizationId === organizationId;
+    const isOrgMember = !!(
+      document.organizationId && document.organizationId === organizationId
+    );
 
     if (!isOwner && !isOrgMember) throw new ConvexError("Unauthorized");
 
@@ -133,7 +158,9 @@ export const updateById = mutation({
       throw new ConvexError("Document not found");
     }
     const isOwner = doc.ownerId == user.subject;
-    const isOrgMember = doc.organizationId === organizationId;
+    const isOrgMember = !!(
+      doc.organizationId && doc.organizationId === organizationId
+    );
 
     if (!isOwner && !isOrgMember) throw new ConvexError("Unauthorized");
 
@@ -142,5 +169,16 @@ export const updateById = mutation({
     }
 
     return await ctx.db.patch(args.id, { title: args.title });
+  },
+});
+
+export const getById = query({
+  args: { id: v.id("documents") },
+  handler: async (ctx, { id }) => {
+   const document = await ctx.db.get(id);
+   
+   if(!document) throw new ConvexError("Document not found");
+
+    return document;
   },
 });

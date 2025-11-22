@@ -102,7 +102,6 @@ const FontSizeButton = () => {
   const currentFontSize = editor?.getAttributes("textStyle").fontSize
     ? editor?.getAttributes("textStyle").fontSize.replace("px", "")
     : "16";
-  console.log(currentFontSize);
 
   const [fontSize, setFontSize] = useState(currentFontSize);
   const [inputValue, setInputValue] = useState(fontSize);
@@ -710,8 +709,8 @@ const ToolBar = () => {
       {
         label: "Comment",
         icon: MessageSquarePlusIcon,
-        isActive: false,
-        onClick: () => console.log("Comment"),
+        isActive: editor?.isActive("liveblocksCommentMark"),
+        onClick: () => editor?.chain().focus().addPendingComment().run()
       },
       {
         label: "List Todo",

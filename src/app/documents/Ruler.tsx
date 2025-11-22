@@ -1,15 +1,27 @@
 import { useRef, useState } from "react";
 import { FaCaretDown } from "react-icons/fa";
+import { useStorage, useMutation } from "@liveblocks/react";
 
 const markers = Array.from({ length: 83 }, (_, i) => i);
 
 const Ruler = () => {
-  const [leftmargin, setLeftMargin] = useState(56);
-  const [rightmargin, setRightMargin] = useState(56);
+  // const [leftmargin, setLeftMargin] = useState(56);
+  // const [rightmargin, setRightMargin] = useState(56);
 
   const [isDraggingLeft, setisDraggingLeft] = useState(false);
   const [isDraggingRight, setisDraggingRight] = useState(false);
   const rulerRef = useRef<HTMLDivElement>(null);
+
+  const leftMargin = useStorage((root) => root.leftMargin) ?? 56;
+  const setLeftMargin = useMutation(({ storage }, position: number) => {
+    storage.set("leftMargin", position);
+  }, []);
+
+  const rightMargin = useStorage((root) => root.rightMargin) ?? 56;
+
+const setRightMargin = useMutation(({ storage }, position: number) => {
+  storage.set("rightMargin", position);
+}, []);
 
   const handleLeftMouseDown = () => {
     setisDraggingLeft(true);
@@ -29,11 +41,11 @@ const Ruler = () => {
         const rawPosition = Math.max(0, Math.min(816, relativeX));
 
         if (isDraggingLeft) {
-          const maxLeftPosition = 816 - (rightmargin - 100);
+          const maxLeftPosition = 816 - (rightMargin - 100);
           const newLeftposition = Math.min(rawPosition, maxLeftPosition);
           setLeftMargin(newLeftposition);
         } else if (isDraggingRight) {
-          const maxRightPosition = 816 - (leftmargin + 100);
+          const maxRightPosition = 816 - (leftMargin + 100);
           const newRightposition = Math.max(816 - rawPosition, 0);
           const constrainedRightPosition = Math.min(
             newRightposition,
@@ -64,14 +76,11 @@ const Ruler = () => {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      className="w-[116px] mx-auto h-6 border-b border-gray-300 flex items-end relative select-none print:hidden"
+      className="w-[816px] mx-auto h-6 border-b border-gray-300 flex items-end relative select-none print:hidden"
     >
-      <div
-        id="ruler-container"
-        className="w-full h-full relative"
-      >
+      <div id="ruler-container" className="w-full h-full relative">
         <Marker
-          position={leftmargin}
+          position={leftMargin}
           isLeft={true}
           isDragging={isDraggingLeft}
           onMouseDown={handleLeftMouseDown}
@@ -79,7 +88,7 @@ const Ruler = () => {
         />
 
         <Marker
-          position={rightmargin}
+          position={rightMargin}
           isLeft={false}
           isDragging={isDraggingRight}
           onMouseDown={handleRightMouseDown}

@@ -3,6 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
+import "@liveblocks/react-ui/styles.css";
+import "@liveblocks/react-tiptap/styles.css";
+import "./globals.css";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
