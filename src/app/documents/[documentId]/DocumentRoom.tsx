@@ -1,17 +1,9 @@
+// app/documents/[documentId]/DocumentRoom.tsx
+"use client";
+
 import { ReactNode } from "react";
-import { getUsers } from "./actions";
 import { Room } from "./Room";
 
-interface DocumentRoomProps {
-  children: ReactNode;
-}
-
-export default async function DocumentRoom({ children }: DocumentRoomProps) {
-  const users = await getUsers(); // SERVER SAFE
-
-  
-
-console.log(users);
-
+export default function DocumentRoom({ users, children }: any) {
   return <Room users={users}>{children}</Room>;
 }
