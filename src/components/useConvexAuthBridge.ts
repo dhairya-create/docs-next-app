@@ -2,22 +2,20 @@
 
 import { useAuth, useOrganization } from "@clerk/nextjs";
 import { useEffect } from "react";
-import { convex } from "./providers"; // or import your Convex client if exported elsewhere
+import { convex } from "./providers";
 
 export function useConvexAuthBridge() {
   const auth = useAuth();
-  const { organization } = useOrganization();
+  const { organization, isLoaded: orgLoaded } = useOrganization();
 
   useEffect(() => {
-    // Refresh token whenever org changes
-    convex.setAuth(async () => {
-      try {
-        return await auth.getToken({ template: "convex" });
-      } catch {
-        return null;
-      }
-    });
-  }, [organization, auth]);
+    if (!auth.isLoaded || !orgLoaded) return;
 
-  return auth; // ConvexProviderWithClerk will use this
+    convex.setAuth(async () => {
+      const token = await auth.getToken({ template: "convex" });
+      return token ?? null;
+    });
+  }, [auth.isLoaded, orgLoaded, organization?.id]);
+
+  return auth;
 }
